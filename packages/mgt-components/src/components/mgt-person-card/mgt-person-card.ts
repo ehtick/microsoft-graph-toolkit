@@ -593,7 +593,6 @@ export class MgtPersonCard extends MgtTemplatedTaskComponent implements IHistory
   protected renderPerson(): TemplateResult {
     return mgtHtml`
       <mgt-person
-        tabindex="0"
         class="person-image"
         .personDetails=${this.internalPersonDetails}
         .personImage=${this.getImage()}
@@ -662,20 +661,22 @@ export class MgtPersonCard extends MgtTemplatedTaskComponent implements IHistory
     }
 
     // Video
-
-    ariaLabel = `${this.strings.videoButtonLabel} ${person.displayName}`;
-    const video: TemplateResult = html`
-      <fluent-button class="icon"
-        aria-label=${ariaLabel}
-        @click=${this.videoCallUser}>
-        ${getSvg(SvgIcon.Video)}
-      </fluent-button>
-    `;
+    let video: TemplateResult;
+    if (userPerson?.userPrincipalName) {
+      ariaLabel = `${this.strings.videoButtonLabel} ${person.displayName}`;
+      video = html`
+        <fluent-button class="icon"
+          aria-label=${ariaLabel}
+          @click=${this.videoCallUser}>
+          ${getSvg(SvgIcon.Video)}
+        </fluent-button>
+      `;
+    }
 
     // Call
     let call: TemplateResult;
-    if (userPerson.userPrincipalName) {
-      ariaLabel = `${this.strings.callButtonLabel} ${person.displayName}`;
+    if (this.hasPhone) {
+      ariaLabel = `${this.strings.callButtonLabel} ${userPerson.displayName}`;
       call = html`
          <fluent-button class="icon"
           aria-label=${ariaLabel}
@@ -1241,7 +1242,7 @@ export class MgtPersonCard extends MgtTemplatedTaskComponent implements IHistory
     }
 
     if (MgtPersonCardConfig.sections.files && files?.length) {
-      this.sections.push(new MgtFileList());
+      this.sections.push(new MgtFileList(files));
     }
 
     if (MgtPersonCardConfig.sections.profile && profile) {
